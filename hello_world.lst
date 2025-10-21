@@ -1,0 +1,37 @@
+     1                                  global _start                 
+     2                                  
+     3                                  section .data
+     4 00000000 48656C6C6F20776F72-         message db "Hello world!", 10    
+     4 00000009 6C64210A           
+     5                                      length  equ $ - message          
+     6 0000000D 4572726F720A                err_msg db "Error", 10  
+     7                                      err_len equ $ - err_msg
+     8                                  
+     9                                  section .text
+    10                                  _start:
+    11                                      
+    12 00000000 B801000000                  mov rax, 1              ; 1 — номер системного вызова write
+    13 00000005 BF01000000                  mov rdi, 1              ; 1 — stdout
+    14 0000000A 48BE-                       mov rsi, message         ; адрес строки
+    14 0000000C [0000000000000000] 
+    15 00000014 BA0D000000                  mov rdx, length          ; количество байт
+    16 00000019 0F05                        syscall
+    17 0000001B 4883F800                    cmp rax, 0
+    18 0000001F 7C10                        jl write_error  
+    19 00000021 4883F80D                    cmp rax, length           ; проверяем равны ли значения 
+    20 00000025 750A                        jne write_error           
+    21 00000027 B83C000000                  mov rax, 60              ; верное завершение
+    22 0000002C 4831FF                      xor rdi, rdi             ; код возврата 0
+    23 0000002F 0F05                        syscall
+    24                                  
+    25                                  write_error:
+    26                                      
+    27 00000031 B801000000                  mov rax, 1               
+    28 00000036 BF02000000                  mov rdi, 2               
+    29 0000003B 48BE-                       mov rsi, err_msg         ; сообщение об ошибке
+    29 0000003D [0D00000000000000] 
+    30 00000045 BA06000000                  mov rdx, err_len         ; длина сообщения
+    31 0000004A 0F05                        syscall
+    32 0000004C B83C000000                  mov rax, 60              ; Выход ошибки
+    33 00000051 BF01000000                  mov rdi, 1               ; код возврата 1
+    34 00000056 0F05                        syscall
